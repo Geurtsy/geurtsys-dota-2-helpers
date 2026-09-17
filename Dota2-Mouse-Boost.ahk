@@ -8,7 +8,7 @@ if A_Args.Length && A_Args[1] = "--validate"
 originalSpeed := 0
 boosted := false
 gamePID := A_Args.Length ? Integer(A_Args[1]) : ProcessExist("dota2.exe")
-if !gamePID || !ProcessExist(gamePID)
+if !DotaIsRunning()
     ExitApp()
 gameWindow := "ahk_pid " gamePID
 A_IconTip := "Dota 2 mouse boost - hold middle mouse"
@@ -17,11 +17,11 @@ OnError(HandleError)
 SetTimer(CheckGame, 20)
 
 ; Tilde preserves normal middle-click / camera-drag input in Dota.
-#HotIf WinActive(gameWindow)
+#HotIf DotaIsRunning() && WinActive(gameWindow)
 ~*MButton::{
     global boosted, originalSpeed, gameWindow
     Critical("On")
-    if !boosted && WinActive(gameWindow) && GetKeyState("MButton", "P") {
+    if !boosted && DotaIsRunning() && WinActive(gameWindow) && GetKeyState("MButton", "P") {
         originalSpeed := ReadSpeed()
         boosted := true
         WriteSpeed(BoostSpeed(originalSpeed))
@@ -35,7 +35,7 @@ SetTimer(CheckGame, 20)
 
 CheckGame() {
     global gamePID, gameWindow, boosted
-    if !ProcessExist(gamePID)
+    if !DotaIsRunning()
         ExitApp()
     if boosted && (!WinActive(gameWindow) || !GetKeyState("MButton", "P"))
         RestoreSpeed()
@@ -85,4 +85,15 @@ RestoreSpeed(*) {
 HandleError(*) {
     RestoreSpeed()
     ; Let AutoHotkey display the original error after restoring the speed.
+}
+
+; Verify the process identity as well as its PID. A manually supplied PID
+; must never allow these helpers to attach to an unrelated application.
+DotaIsRunning() {
+    global gamePID
+    try {
+        return gamePID && StrLower(ProcessGetName(gamePID)) = "dota2.exe"
+    } catch {
+        return false
+    }
 }
