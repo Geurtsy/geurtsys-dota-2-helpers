@@ -6,7 +6,8 @@ try {
     $watcherPath = Join-Path $PSScriptRoot 'Dota2-Voice-Watcher.ahk'
     $togglePath = Join-Path $PSScriptRoot 'Dota2-Voice-Toggle.ahk'
     $mousePath = Join-Path $PSScriptRoot 'Dota2-Mouse-Boost.ahk'
-    foreach ($path in @($watcherPath, $togglePath, $mousePath)) {
+    $settingsPath = Join-Path $PSScriptRoot 'Dota2-Mouse-Settings.ahk'
+    foreach ($path in @($watcherPath, $togglePath, $mousePath, $settingsPath)) {
         if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
             throw 'Extract the entire ZIP first. Keep Setup.bat, Setup.ps1 and all .ahk files together.'
         }
@@ -41,7 +42,7 @@ try {
     }
 
     # Parse all scripts before changing the startup shortcut.
-    foreach ($path in @($watcherPath, $togglePath, $mousePath)) {
+    foreach ($path in @($watcherPath, $togglePath, $mousePath, $settingsPath)) {
         $check = Start-Process -FilePath $ahkExe -ArgumentList @('/ErrorStdOut', ('"' + $path + '"'), '--validate') -WindowStyle Hidden -Wait -PassThru
         if ($check.ExitCode -ne 0) { throw "AutoHotkey could not validate $path (exit $($check.ExitCode))." }
     }
