@@ -16,18 +16,18 @@ Press **G** once to talk, then press **G** again to stop. The helper holds your 
 
 1. Install [AutoHotkey v2](https://www.autohotkey.com/) on Windows.
 2. Download this repository using **Code > Download ZIP**, then extract it into a permanent folder.
-3. Keep `Dota2-Voice-Watcher.ahk` and `Dota2-Voice-Toggle.ahk` together.
+3. Keep all downloaded files together, including `Setup.bat`, `Setup.ps1` and both `.ahk` scripts.
 4. In Dota 2, set your push-to-talk key to **F10**.
-5. Double-click `Dota2-Voice-Watcher.ahk`, then launch Dota 2 as usual. If Dota 2 is already running, the watcher will detect it.
+5. Double-click **`Setup.bat`**. It finds AutoHotkey v2, checks the scripts, creates your Windows startup shortcut, and starts the watcher immediately. No administrator access is needed.
 6. Press **G** to toggle voice on or off.
 
-### Start automatically with Windows
+### Automatic startup
 
-1. Create a shortcut to `Dota2-Voice-Watcher.ahk`.
-2. Press **Win+R**, type `shell:startup`, and press Enter.
-3. Move the shortcut into that Startup folder.
+Setup creates **Dota 2 Voice Toggle.lnk** in your user Startup folder. The watcher starts whenever you sign in and detects Dota 2 automatically. Running setup again updates the same shortcut.
 
-The watcher will now start at sign-in. Keep the original scripts in their permanent folder so the shortcut continues to work.
+Keep the extracted folder in its current location. If you move it, exit the existing watcher and voice helper from the tray, then run `Setup.bat` in the new location. Setup requires AutoHotkey v2 to be installed; it displays instructions if it cannot find it. The batch file runs the included PowerShell setup helper with a process-only execution-policy override; it does not change your saved PowerShell policy.
+
+For manual use without automatic startup, double-click `Dota2-Voice-Watcher.ahk` instead of running setup.
 
 ## Notes
 
@@ -41,12 +41,14 @@ The watcher will now start at sign-in. Keep the original scripts in their perman
 
 Right-click the watcher's AutoHotkey tray icon and select **Exit**. If Dota 2 is running, also exit the voice helper's tray icon to immediately release F10 and remove the indicator.
 
-To prevent automatic startup, remove the shortcut you added to `shell:startup`. You can then delete the extracted folder when both scripts have stopped.
+To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove **Dota 2 Voice Toggle.lnk**. You can then delete the extracted folder when both scripts have stopped.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
+| `Setup.bat` | Double-click installer that enables automatic startup and starts the watcher. |
+| `Setup.ps1` | Detects AutoHotkey v2, validates the scripts, and creates the startup shortcut. |
 | `Dota2-Voice-Watcher.ahk` | Watches for `dota2.exe` and launches the voice helper for each game session. |
 | `Dota2-Voice-Toggle.ahk` | Implements the G toggle, F10 hold, visible indicator, and cleanup. |
 
