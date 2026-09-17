@@ -7,7 +7,7 @@ if A_Args.Length && A_Args[1] = "--validate"
 
 voiceOn := false
 gamePID := A_Args.Length ? Integer(A_Args[1]) : ProcessExist("dota2.exe")
-if !gamePID || !ProcessExist(gamePID)
+if !DotaIsRunning()
     ExitApp()
 
 gameWindow := "ahk_pid " gamePID
@@ -23,9 +23,11 @@ OnExit(ReleaseVoice)
 SetTimer(CheckGame, 100)
 
 ; KeyWait prevents a held G from toggling repeatedly.
-#HotIf WinActive(gameWindow)
+#HotIf DotaIsRunning() && WinActive(gameWindow)
 $*g::{
     global voiceOn, voiceIndicator, gameWindow
+    if !DotaIsRunning() || !WinActive(gameWindow)
+        return
     voiceOn := !voiceOn
     SendEvent(voiceOn ? "{Blind}{F10 down}" : "{Blind}{F10 up}")
     A_IconTip := "Dota 2 voice: " (voiceOn ? "ON" : "OFF") " (G toggles)"
@@ -43,7 +45,7 @@ $*g::{
 
 CheckGame() {
     global gamePID, gameWindow, voiceOn
-    if !ProcessExist(gamePID)
+    if !DotaIsRunning()
         ExitApp()
     if voiceOn && !WinActive(gameWindow)
         ReleaseVoice()
@@ -56,5 +58,16 @@ ReleaseVoice(*) {
         SendEvent("{Blind}{F10 up}")
         voiceOn := false
         A_IconTip := "Dota 2 voice: OFF (G toggles)"
+    }
+}
+
+; Verify the process identity as well as its PID. A manually supplied PID
+; must never allow these helpers to attach to an unrelated application.
+DotaIsRunning() {
+    global gamePID
+    try {
+        return gamePID && StrLower(ProcessGetName(gamePID)) = "dota2.exe"
+    } catch {
+        return false
     }
 }
