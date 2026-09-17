@@ -5,43 +5,64 @@
 if A_Args.Length && A_Args[1] = "--validate"
     ExitApp()
 
+boostKey := 'MButton'
+previousDown := false
+InstallKeybdHook()
+InstallMouseHook()
 originalSpeed := 0
 boosted := false
 gamePID := A_Args.Length ? Integer(A_Args[1]) : ProcessExist("dota2.exe")
 if !DotaIsRunning()
     ExitApp()
 gameWindow := "ahk_pid " gamePID
-A_IconTip := "Dota 2 mouse boost - hold middle mouse"
+A_IconTip := "Dota 2 mouse boost - hold your configured key"
 A_TrayMenu.Insert("1&", "Settings...", OpenSettings)
 OnExit(RestoreSpeed)
 OnError(HandleError)
+LoadBoostKey()
+SetTimer(LoadBoostKey, 500)
 SetTimer(CheckGame, 20)
 
-; Tilde preserves normal middle-click / camera-drag input in Dota.
-#HotIf DotaIsRunning() && WinActive(gameWindow)
-~*MButton::{
-    global boosted, originalSpeed, gameWindow
+; Observe the configurable physical key without swallowing its normal input.
+CheckGame() {
+    global gamePID, gameWindow, boosted, boostKey, previousDown
+    if !DotaIsRunning()
+        ExitApp()
+    down := GetKeyState(boostKey, "P")
+    focused := WinActive(gameWindow)
+    if boosted && (!focused || !down)
+        RestoreSpeed()
+    if down && !previousDown && focused {
+        ApplyBoost()
+    }
+    previousDown := down
+}
+
+ApplyBoost() {
+    global originalSpeed, boosted
     Critical("On")
-    if !boosted && DotaIsRunning() && WinActive(gameWindow) && GetKeyState("MButton", "P") {
+    try {
         originalSpeed := ReadSpeed()
         boosted := true
         WriteSpeed(BoostSpeed(originalSpeed, ReadMultiplier()))
         A_IconTip := "Dota 2 mouse boost - ON"
+    } finally {
+        Critical("Off")
     }
-    Critical("Off")
-    KeyWait("MButton")
-    RestoreSpeed()
 }
-#HotIf
 
-CheckGame() {
-    global gamePID, gameWindow, boosted
-    if !DotaIsRunning()
-        ExitApp()
-    if boosted && (!WinActive(gameWindow) || !GetKeyState("MButton", "P"))
+LoadBoostKey() {
+    global boostKey, previousDown
+    nextKey := "MButton"
+    try nextKey := IniRead(A_AppData "\GeurtsyDota2Helpers\settings.ini", "Mouse", "BoostKey", "MButton")
+    if !RegExMatch(nextKey, "i)^[a-z0-9]+$") || !GetKeyVK(nextKey) || RegExMatch(nextKey, "i)^Wheel")
+        nextKey := "MButton"
+    if StrLower(nextKey) != StrLower(boostKey) {
         RestoreSpeed()
+        boostKey := nextKey
+        previousDown := GetKeyState(boostKey, "P")
+    }
 }
-
 ReadSpeed() {
     speed := 0
     if !DllCall("SystemParametersInfoW", "UInt", 0x70, "UInt", 0, "Int*", &speed, "UInt", 0)
@@ -89,7 +110,7 @@ RestoreSpeed(*) {
         if boosted {
             WriteSpeed(originalSpeed)
             boosted := false
-            A_IconTip := "Dota 2 mouse boost - hold middle mouse"
+            A_IconTip := "Dota 2 mouse boost - hold your configured key"
         }
     } finally {
         Critical("Off")
@@ -111,4 +132,5 @@ DotaIsRunning() {
         return false
     }
 }
+
 
