@@ -30,6 +30,16 @@ Hold the **middle mouse button** while Dota 2 is focused to boost Windows pointe
 - The change is not saved to your Windows profile. A forced process termination can bypass cleanup; if that happens while boosted, restore pointer speed in Windows Settings or sign out and back in.
 
 ## Setup
+ 
+### Adjust mouse speed
+
+Double-click **`Dota2-Mouse-Settings.ahk`**, or right-click the watcher's or mouse helper's AutoHotkey tray icon and choose **Mouse settings...**.
+
+Move the slider from **1x to 4x** and click **Save settings**. **Reset to 2x** selects the default; click Save to keep it. Saved changes apply on the next middle-mouse press without restarting Dota. Windows still rounds to its available speed steps and maximum.
+
+Preferences are saved per Windows user in `%APPDATA%\GeurtsyDota2Helpers\settings.ini`. Missing or invalid settings fall back to 2x. This settings window can be opened without Dota; it only edits preferences and never enables mouse or keyboard helpers outside the game.
+
+### Install
 
 1. Install [AutoHotkey v2](https://www.autohotkey.com/) on Windows.
 2. Download this repository using **Code > Download ZIP**, then extract it into a permanent folder.
@@ -69,6 +79,7 @@ To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove
 | `Dota2-Voice-Watcher.ahk` | Watches for `dota2.exe` and launches the voice helper for each game session. |
 | `Dota2-Voice-Toggle.ahk` | Implements the G toggle, F10 hold, visible indicator, and cleanup. |
 | `Dota2-Mouse-Boost.ahk` | Temporarily boosts Windows pointer speed while middle mouse is held in Dota. |
+| `Dota2-Mouse-Settings.ahk` | Slider-based settings window for the saved middle-mouse speed multiplier. |
 
 ## Validation
 
