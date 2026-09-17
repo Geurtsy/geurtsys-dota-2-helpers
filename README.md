@@ -47,6 +47,12 @@ The activation button itself retains its normal action. You can use the same act
 
 The **speed boost remains a hold action**, even when camera mode uses Toggle. It changes Windows pointer speed, **not Dota's arrow-key camera pan rate**. Select its independent **Hold key** in the Mouse speed section. Changes apply without restarting Dota.
 
+## On-screen indicators
+
+Active helpers show matching bordered, slightly transparent panels near the top center of Dota. **VOICE CHAT ON** is green in the first slot; **WASD CAMERA ON** is blue in the second slot, with a gap between them. The WASD panel shows the key to release or press again for your selected mode. The second slot stays reserved even when voice is off, keeping the panels from overlapping or jumping positions.
+
+Both panels are click-through and do not take keyboard focus. WASD's panel appears only while camera mode is active, and hides when you release the activation key in Hold mode, toggle off, or leave Dota. Normal helper exit removes the panel. Exclusive fullscreen can hide desktop overlays; use borderless window mode if needed.
+
 ## Setup
  
 ### Adjust mouse speed
@@ -105,5 +111,6 @@ To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove
 All AutoHotkey scripts include a `--validate` argument that loads and parses the script, then exits without enabling the helper. Run them with AutoHotkey v2 and this argument for syntax checking.
 
 Syntax validation is not an in-game microphone test. Check voice transmission and indicator visibility in your own Dota 2 setup.
+
 
 
