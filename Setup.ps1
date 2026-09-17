@@ -5,9 +5,10 @@ $ErrorActionPreference = 'Stop'
 try {
     $watcherPath = Join-Path $PSScriptRoot 'Dota2-Voice-Watcher.ahk'
     $togglePath = Join-Path $PSScriptRoot 'Dota2-Voice-Toggle.ahk'
-    foreach ($path in @($watcherPath, $togglePath)) {
+    $mousePath = Join-Path $PSScriptRoot 'Dota2-Mouse-Boost.ahk'
+    foreach ($path in @($watcherPath, $togglePath, $mousePath)) {
         if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
-            throw 'Extract the entire ZIP first. Keep Setup.bat, Setup.ps1 and both .ahk files together.'
+            throw 'Extract the entire ZIP first. Keep Setup.bat, Setup.ps1 and all .ahk files together.'
         }
     }
 
@@ -39,13 +40,13 @@ try {
         throw 'AutoHotkey v2 was not found. Install it from https://www.autohotkey.com/ and run Setup.bat again.'
     }
 
-    # Parse both scripts before changing the startup shortcut.
-    foreach ($path in @($watcherPath, $togglePath)) {
+    # Parse all scripts before changing the startup shortcut.
+    foreach ($path in @($watcherPath, $togglePath, $mousePath)) {
         $check = Start-Process -FilePath $ahkExe -ArgumentList @('/ErrorStdOut', ('"' + $path + '"'), '--validate') -WindowStyle Hidden -Wait -PassThru
         if ($check.ExitCode -ne 0) { throw "AutoHotkey could not validate $path (exit $($check.ExitCode))." }
     }
     if ($ValidateOnly) {
-        Write-Host 'Validation passed: AutoHotkey v2 and both helper scripts are ready. No startup changes made.'
+        Write-Host 'Validation passed: AutoHotkey v2 and all helper scripts are ready. No startup changes made.'
         exit 0
     }
 
@@ -71,6 +72,7 @@ try {
     }
     Write-Host 'Setup complete! The watcher is running and will start each time you sign in.'
     Write-Host 'Keep this folder in its current location. Set Dota 2 push-to-talk to F10; press G to toggle voice.'
+    Write-Host 'Hold middle mouse in Dota 2 for a temporary pointer-speed boost; release to restore.'
     Write-Host 'To disable startup, remove Dota 2 Voice Toggle.lnk from the shell:startup folder.'
 } catch {
     Write-Host ('Setup failed: ' + $_.Exception.Message) -ForegroundColor Red
