@@ -10,6 +10,9 @@ When Dota is not running, only the idle watcher remains. It registers no keyboar
 
 ## Toggle voice chat
 
+The defaults below are configurable in the settings window. Set **Target key** to match your Dota push-to-talk binding and **Toggle key** to the key you want to press to turn voice on/off. Click a key box and press a single keyboard key without modifiers, then click **Save settings**. The keys must differ. Changes apply within about half a second without restarting Dota and turn any active voice hold off first. The indicator uses your selected toggle key. Your selected toggle is reserved throughout Dota, including text chat. The window does not edit Dota's own bindings.
+
+
 Press **G** once to talk, then press **G** again to stop. The helper holds your existing **F10** push-to-talk binding while voice is on.
 
 - A small green **Voice chat ON | G to turn off** indicator stays near the top center of the game while voice is on.
@@ -33,7 +36,7 @@ Hold the **middle mouse button** while Dota 2 is focused to boost Windows pointe
  
 ### Adjust mouse speed
 
-Double-click **`Dota2-Mouse-Settings.ahk`**, or right-click the watcher's or mouse helper's AutoHotkey tray icon and choose **Mouse settings...**.
+Double-click **`Dota2-Mouse-Settings.ahk`**, or right-click the watcher's or mouse helper's AutoHotkey tray icon and choose **Settings...**.
 
 Move the slider from **1x to 4x** and click **Save settings**. **Reset to 2x** selects the default; click Save to keep it. Saved changes apply on the next middle-mouse press without restarting Dota. Windows still rounds to its available speed steps and maximum.
 
@@ -79,10 +82,11 @@ To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove
 | `Dota2-Voice-Watcher.ahk` | Watches for `dota2.exe` and launches the voice helper for each game session. |
 | `Dota2-Voice-Toggle.ahk` | Implements the G toggle, F10 hold, visible indicator, and cleanup. |
 | `Dota2-Mouse-Boost.ahk` | Temporarily boosts Windows pointer speed while middle mouse is held in Dota. |
-| `Dota2-Mouse-Settings.ahk` | Slider-based settings window for the saved middle-mouse speed multiplier. |
+| `Dota2-Mouse-Settings.ahk` | Settings window for the saved mouse multiplier and voice target/toggle keys. |
 
 ## Validation
 
 All AutoHotkey scripts include a `--validate` argument that loads and parses the script, then exits without enabling the helper. Run them with AutoHotkey v2 and this argument for syntax checking.
 
 Syntax validation is not an in-game microphone test. Check voice transmission and indicator visibility in your own Dota 2 setup.
+
