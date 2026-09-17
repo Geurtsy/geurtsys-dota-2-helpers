@@ -12,6 +12,7 @@ if !DotaIsRunning()
     ExitApp()
 gameWindow := "ahk_pid " gamePID
 A_IconTip := "Dota 2 mouse boost - hold middle mouse"
+A_TrayMenu.Insert("1&", "Mouse settings...", OpenSettings)
 OnExit(RestoreSpeed)
 OnError(HandleError)
 SetTimer(CheckGame, 20)
@@ -24,7 +25,7 @@ SetTimer(CheckGame, 20)
     if !boosted && DotaIsRunning() && WinActive(gameWindow) && GetKeyState("MButton", "P") {
         originalSpeed := ReadSpeed()
         boosted := true
-        WriteSpeed(BoostSpeed(originalSpeed))
+        WriteSpeed(BoostSpeed(originalSpeed, ReadMultiplier()))
         A_IconTip := "Dota 2 mouse boost - ON"
     }
     Critical("Off")
@@ -54,18 +55,31 @@ WriteSpeed(speed) {
         throw OSError()
 }
 
-BoostSpeed(speed) {
+BoostSpeed(speed, multiplier := 2) {
     ; Windows pointer-speed steps are nonlinear. These nominal gains apply
     ; with Enhance pointer precision OFF; acceleration changes the result.
     gains := [0.03125, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1,
               1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5]
-    target := gains[speed] * 2
+    target := gains[speed] * multiplier
     best := speed
     for index, gain in gains {
         if Abs(gain - target) < Abs(gains[best] - target)
             best := index
     }
     return best
+}
+
+ReadMultiplier() {
+    try {
+        value := IniRead(A_AppData "\GeurtsyDota2Helpers\settings.ini", "Mouse", "Multiplier", "2.0")
+        if IsNumber(value) && value >= 1 && value <= 4
+            return Number(value)
+    }
+    return 2.0
+}
+
+OpenSettings(*) {
+    Run('"' A_AhkPath '" "' A_ScriptDir '\Dota2-Mouse-Settings.ahk"')
 }
 
 RestoreSpeed(*) {
