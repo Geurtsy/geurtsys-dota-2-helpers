@@ -12,7 +12,7 @@ if !DotaIsRunning()
     ExitApp()
 gameWindow := "ahk_pid " gamePID
 A_IconTip := "Dota 2 mouse boost - hold middle mouse"
-A_TrayMenu.Insert("1&", "Mouse settings...", OpenSettings)
+A_TrayMenu.Insert("1&", "Settings...", OpenSettings)
 OnExit(RestoreSpeed)
 OnError(HandleError)
 SetTimer(CheckGame, 20)
@@ -111,3 +111,4 @@ DotaIsRunning() {
         return false
     }
 }
+
