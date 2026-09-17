@@ -12,14 +12,25 @@ Press **G** once to talk, then press **G** again to stop. The helper holds your 
 - A lightweight watcher stays running and starts the helper the next time Dota 2 launches, including launches through Steam.
 - G only controls voice while Dota 2 is focused. Holding G does not toggle repeatedly.
 
+## Hold middle mouse for a speed boost
+
+Hold the **middle mouse button** while Dota 2 is focused to boost Windows pointer speed toward **2x** its normal level. Release it to restore the speed captured when you pressed the button. Middle-click still reaches Dota normally, including camera dragging.
+
+- Switching away from Dota, closing the game, or normally exiting the helper restores your original speed. After Alt-Tab, release and press middle mouse again to re-enable the boost.
+- This changes Windows pointer speed, **not hardware CPI/DPI**. Windows exposes a system-wide setting; the helper applies it only while Dota is focused and restores it within the next timer check when focus changes.
+- Windows speed steps are nonlinear: the helper selects the closest available nominal 2x gain, capped at Windows' maximum. For example, default speed 10 becomes 14, rather than 20. At higher baseline settings, 2x may be unavailable.
+- **Enhance pointer precision** adds acceleration, so an exact 2x result is not guaranteed. The helper leaves this preference unchanged.
+- Games using raw mouse input may ignore Windows pointer speed. Test its effect on your Dota setup.
+- The change is not saved to your Windows profile. A forced process termination can bypass cleanup; if that happens while boosted, restore pointer speed in Windows Settings or sign out and back in.
+
 ## Setup
 
 1. Install [AutoHotkey v2](https://www.autohotkey.com/) on Windows.
 2. Download this repository using **Code > Download ZIP**, then extract it into a permanent folder.
-3. Keep all downloaded files together, including `Setup.bat`, `Setup.ps1` and both `.ahk` scripts.
+3. Keep all downloaded files together, including `Setup.bat`, `Setup.ps1` and all `.ahk` scripts.
 4. In Dota 2, set your push-to-talk key to **F10**.
 5. Double-click **`Setup.bat`**. It finds AutoHotkey v2, checks the scripts, creates your Windows startup shortcut, and starts the watcher immediately. No administrator access is needed.
-6. Press **G** to toggle voice on or off.
+6. Press **G** to toggle voice on or off. Hold **middle mouse** for the temporary pointer-speed boost.
 
 ### Automatic startup
 
@@ -39,7 +50,7 @@ For manual use without automatic startup, double-click `Dota2-Voice-Watcher.ahk`
 
 ## Stop or uninstall
 
-Right-click the watcher's AutoHotkey tray icon and select **Exit**. If Dota 2 is running, also exit the voice helper's tray icon to immediately release F10 and remove the indicator.
+Right-click the watcher's AutoHotkey tray icon and select **Exit**. If Dota 2 is running, also exit the voice and mouse helpers' tray icons to immediately release F10, remove the indicator, and restore pointer speed.
 
 To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove **Dota 2 Voice Toggle.lnk**. You can then delete the extracted folder when both scripts have stopped.
 
@@ -51,9 +62,10 @@ To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove
 | `Setup.ps1` | Detects AutoHotkey v2, validates the scripts, and creates the startup shortcut. |
 | `Dota2-Voice-Watcher.ahk` | Watches for `dota2.exe` and launches the voice helper for each game session. |
 | `Dota2-Voice-Toggle.ahk` | Implements the G toggle, F10 hold, visible indicator, and cleanup. |
+| `Dota2-Mouse-Boost.ahk` | Temporarily boosts Windows pointer speed while middle mouse is held in Dota. |
 
 ## Validation
 
-Both scripts include a `--validate` argument that loads and parses the script, then exits without enabling the helper. Run them with AutoHotkey v2 and this argument for syntax checking.
+All AutoHotkey scripts include a `--validate` argument that loads and parses the script, then exits without enabling the helper. Run them with AutoHotkey v2 and this argument for syntax checking.
 
 Syntax validation is not an in-game microphone test. Check voice transmission and indicator visibility in your own Dota 2 setup.
