@@ -14,9 +14,18 @@ toggled := false
 captured := Map("w", false, "a", false, "s", false, "d", false)
 sent := Map("w", false, "a", false, "s", false, "d", false)
 arrows := Map("w", "Up", "a", "Left", "s", "Down", "d", "Right")
+cameraIndicator := Gui("+AlwaysOnTop -Caption +Border +ToolWindow +E0x20 +E0x08000000", "Geurtsy Dota WASD Indicator")
+cameraIndicator.BackColor := "17212B"
+cameraIndicator.AddProgress("x0 y0 w4 h46 c60A5FA Background60A5FA", 100)
+cameraIndicator.SetFont("s10 Bold c93C5FD", "Segoe UI")
+cameraIndicator.AddText("x16 y6 w290 h18", "WASD CAMERA  ON")
+cameraIndicator.SetFont("s9 Norm cE2E8F0", "Segoe UI")
+cameraIndicatorLabel := cameraIndicator.AddText("x16 y25 w290 h17", "W / A / S / D move the camera")
+cameraIndicator.Show("NoActivate Hide w320 h46")
+WinSetTransparent(235, cameraIndicator.Hwnd)
 InstallKeybdHook()
 InstallMouseHook()
-OnExit(ReleaseArrows)
+OnExit(CameraExit)
 OnError(CameraError)
 HotIf(GameFocused)
 Hotkey("~*" cameraKey, ActivateCamera, "On")
@@ -102,6 +111,7 @@ CheckCamera() {
         toggled := false
     if !CameraActive()
         ReleaseArrows()
+    UpdateCameraIndicator()
     for key, consumed in captured {
         if consumed && !GetKeyState(key, "P")
             ArrowUp(key)
@@ -139,11 +149,31 @@ LoadCameraSettings() {
     }
 }
 CameraError(*) {
-    ReleaseArrows()
+    CameraExit()
 }
 DotaIsRunning() {
     global gamePID
     try return gamePID && StrLower(ProcessGetName(gamePID)) = "dota2.exe"
     catch
         return false
+}
+
+UpdateCameraIndicator() {
+    global cameraIndicator, cameraIndicatorLabel, gameWindow, cameraKey, cameraMode
+    if !CameraActive() {
+        cameraIndicator.Hide()
+        return
+    }
+    cameraIndicatorLabel.Text := cameraMode = "Toggle" ? cameraKey " to turn off" : "Release " cameraKey " to turn off"
+    WinGetPos(&gameX, &gameY, &gameWidth, , gameWindow)
+    cameraIndicator.GetPos(, , &indicatorWidth, &indicatorHeight)
+    ; Same size as voice; measured screen height also handles DPI scaling.
+    ; Reserve slot one even when voice is off, so these never overlap.
+    cameraIndicator.Show("NoActivate x" (gameX + (gameWidth - indicatorWidth) // 2) " y" (gameY + 40 + indicatorHeight + 8))
+}
+
+CameraExit(*) {
+    global cameraIndicator
+    cameraIndicator.Hide()
+    ReleaseArrows()
 }
