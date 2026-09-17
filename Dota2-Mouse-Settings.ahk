@@ -23,26 +23,52 @@ try {
 }
 
 settingsWindow := Gui(, "Geurtsy's Dota 2 Helpers - Settings")
-settingsWindow.SetFont("s10", "Segoe UI")
-settingsWindow.MarginX := 24
-settingsWindow.MarginY := 20
-settingsWindow.AddText("w430", "Middle-mouse speed boost")
-settingsWindow.AddText("w430", "Choose how much faster the pointer moves while you hold the middle mouse button in Dota 2.")
-multiplierLabel := settingsWindow.AddText("w430 Center", Format("{:.1f}x normal speed", savedMultiplier))
-multiplierSlider := settingsWindow.AddSlider("w430 Range10-40 TickInterval5 ToolTip", Round(savedMultiplier * 10))
-settingsWindow.AddText("w430", "1x = normal speed                                       4x = maximum request")
-settingsWindow.AddText("w430", "Windows uses fixed speed steps and a maximum limit. Actual speed may be lower than requested, especially with pointer acceleration enabled.")
-settingsWindow.AddText("w430", "Your normal speed is restored on release or when you leave Dota. These settings do not change hardware CPI.")
-settingsWindow.AddText("xm w430", "Voice chat keys")
-settingsWindow.AddText("w430", "Click each box and press a single keyboard key (no modifiers).")
-settingsWindow.AddText("w430", "Target key - your push-to-talk binding inside Dota 2")
-targetControl := settingsWindow.AddHotkey("w210", StrLower(savedTarget))
-settingsWindow.AddText("w430", "Toggle key - press once to talk, again to stop")
-toggleControl := settingsWindow.AddHotkey("w210", StrLower(savedToggle))
-settingsWindow.AddText("w430", "Set Dota's push-to-talk binding to the same target key. This window does not change Dota's own settings.")
-saveButton := settingsWindow.AddButton("w130 Default", "Save settings")
-resetButton := settingsWindow.AddButton("x+12 w130", "Reset to 2x")
-statusLabel := settingsWindow.AddText("xm w430 h40", "Voice changes apply automatically; mouse changes apply on the next press.")
+settingsWindow.BackColor := "F5F6F8"
+settingsWindow.SetFont("s18 Bold c202938", "Segoe UI")
+settingsWindow.AddText("x24 y18 w496 h32", "Dota 2 Helpers")
+settingsWindow.SetFont("s10 Norm c586174", "Segoe UI")
+settingsWindow.AddText("x24 y54 w496 h22", "Configure your mouse boost and voice chat keys.")
+
+; Mouse controls are enclosed separately from voice controls.
+settingsWindow.SetFont("s11 Bold c202938", "Segoe UI")
+settingsWindow.AddGroupBox("x24 y88 w496 h238", "Mouse speed")
+settingsWindow.SetFont("s10 Norm c202938", "Segoe UI")
+settingsWindow.AddText("x44 y118 w456 h36", "Hold the middle mouse button in Dota to temporarily boost pointer speed.")
+settingsWindow.SetFont("s13 Bold c202938", "Segoe UI")
+multiplierLabel := settingsWindow.AddText("x44 y158 w456 h26 Center", Format("{:.1f}x normal speed", savedMultiplier))
+settingsWindow.SetFont("s10 Norm c202938", "Segoe UI")
+multiplierSlider := settingsWindow.AddSlider("x44 y188 w456 h34 Range10-40 TickInterval5", Round(savedMultiplier * 10))
+settingsWindow.AddText("x44 y225 w200 h20", "1x - normal")
+settingsWindow.AddText("x300 y225 w200 h20 Right", "4x - maximum request")
+resetButton := settingsWindow.AddButton("x44 y253 w136 h28", "Reset mouse to 2x")
+settingsWindow.SetFont("s9 Norm c586174", "Segoe UI")
+settingsWindow.AddText("x44 y291 w456 h26", "Windows speed limits apply. Normal speed returns when released.")
+
+settingsWindow.SetFont("s11 Bold c202938", "Segoe UI")
+settingsWindow.AddGroupBox("x24 y342 w496 h226", "Voice chat")
+settingsWindow.SetFont("s9 Norm c586174", "Segoe UI")
+settingsWindow.AddText("x44 y371 w456 h20", "Click a key box and press a single key, without modifiers.")
+settingsWindow.SetFont("s10 Bold c202938", "Segoe UI")
+settingsWindow.AddText("x44 y407 w270 h22", "Target key")
+settingsWindow.SetFont("s9 Norm c586174", "Segoe UI")
+settingsWindow.AddText("x44 y433 w270 h22", "Your push-to-talk binding inside Dota")
+settingsWindow.SetFont("s10 Norm c202938", "Segoe UI")
+targetControl := settingsWindow.AddHotkey("x342 y409 w158 h28", StrLower(savedTarget))
+settingsWindow.SetFont("s10 Bold c202938", "Segoe UI")
+settingsWindow.AddText("x44 y469 w270 h22", "Toggle key")
+settingsWindow.SetFont("s9 Norm c586174", "Segoe UI")
+settingsWindow.AddText("x44 y495 w270 h22", "Press once to talk, again to stop")
+settingsWindow.SetFont("s10 Norm c202938", "Segoe UI")
+toggleControl := settingsWindow.AddHotkey("x342 y471 w158 h28", StrLower(savedToggle))
+settingsWindow.SetFont("s9 Norm c586174", "Segoe UI")
+settingsWindow.AddText("x44 y531 w456 h24", "Match the target key to Dota's own push-to-talk setting.")
+
+; Shared actions and save feedback sit below both sections.
+settingsWindow.AddText("x24 y586 w496 h2 0x10")
+settingsWindow.SetFont("s10 Bold c202938", "Segoe UI")
+saveButton := settingsWindow.AddButton("x364 y603 w156 h34 Default", "Save settings")
+settingsWindow.SetFont("s9 Norm c586174", "Segoe UI")
+statusLabel := settingsWindow.AddText("x24 y603 w322 h52", "Voice changes apply automatically; mouse changes apply on the next press.")
 multiplierSlider.OnEvent("Change", UpdateLabel)
 saveButton.OnEvent("Click", SaveSettings)
 resetButton.OnEvent("Click", ResetSelection)
@@ -78,7 +104,7 @@ if A_Args.Length && A_Args[1] = "--self-test" {
     FileAppend("PASS: settings GUI creation, slider label, persistence and reset.`n", "*")
     ExitApp()
 }
-settingsWindow.Show("AutoSize")
+settingsWindow.Show("w544 h672")
 
 UpdateLabel(*) {
     global multiplierLabel, multiplierSlider, statusLabel
@@ -119,4 +145,3 @@ ValidVoiceKey(key) {
     return RegExMatch(key, "i)^[a-z0-9]+$") && GetKeyVK(key)
         && !RegExMatch(key, "i)^(.*Button|Wheel.*|.*Shift|.*Control|.*Ctrl|.*Alt|.*Win)$")
 }
-
