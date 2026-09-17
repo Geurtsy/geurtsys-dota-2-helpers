@@ -6,45 +6,99 @@ if A_Args.Length && A_Args[1] = "--validate"
     ExitApp()
 
 voiceOn := false
+heldTarget := ""
+targetKey := "F10"
+toggleKey := "G"
+settingsPath := A_AppData "\GeurtsyDota2Helpers\settings.ini"
 gamePID := A_Args.Length ? Integer(A_Args[1]) : ProcessExist("dota2.exe")
 if !DotaIsRunning()
     ExitApp()
-
 gameWindow := "ahk_pid " gamePID
-; Borderless, click-through indicator that never takes keyboard focus.
 voiceIndicator := Gui("+AlwaysOnTop -Caption +ToolWindow +E0x20 +E0x08000000")
 voiceIndicator.BackColor := "153D2A"
 voiceIndicator.MarginX := 14
 voiceIndicator.MarginY := 8
 voiceIndicator.SetFont("s11 cFFFFFF", "Segoe UI")
-voiceIndicator.AddText(, "Voice chat ON  |  G to turn off")
+indicatorLabel := voiceIndicator.AddText(, "Voice chat ON  |  G to turn off")
 A_IconTip := "Dota 2 voice: OFF (G toggles)"
 OnExit(ReleaseVoice)
+OnError(VoiceError)
+HotIf(VoiceContext)
+Hotkey("$*" toggleKey, ToggleVoice, "On")
+HotIf()
+LoadVoiceSettings()
 SetTimer(CheckGame, 100)
+SetTimer(LoadVoiceSettings, 500)
 
-; KeyWait prevents a held G from toggling repeatedly.
-#HotIf DotaIsRunning() && WinActive(gameWindow)
-$*g::{
-    global voiceOn, voiceIndicator, gameWindow
-    if !DotaIsRunning() || !WinActive(gameWindow)
+VoiceContext(*) {
+    global gameWindow
+    return DotaIsRunning() && WinActive(gameWindow)
+}
+
+ToggleVoice(*) {
+    global voiceOn, heldTarget, targetKey, toggleKey, voiceIndicator, gameWindow, indicatorLabel
+    Critical("On")
+    if !VoiceContext() {
+        Critical("Off")
         return
-    voiceOn := !voiceOn
-    SendEvent(voiceOn ? "{Blind}{F10 down}" : "{Blind}{F10 up}")
-    A_IconTip := "Dota 2 voice: " (voiceOn ? "ON" : "OFF") " (G toggles)"
+    }
+    waitKey := toggleKey
     if voiceOn {
+        ReleaseVoice()
+    } else {
+        heldTarget := targetKey
+        voiceOn := true
+        SendEvent("{Blind}{" heldTarget " down}")
+        A_IconTip := "Dota 2 voice: ON (" toggleKey " toggles)"
+        indicatorLabel.Text := "Voice chat ON  |  " toggleKey " to turn off"
         WinGetPos(&gameX, &gameY, &gameWidth, , gameWindow)
         voiceIndicator.Show("NoActivate AutoSize Hide")
         voiceIndicator.GetPos(, , &indicatorWidth)
         voiceIndicator.Show("NoActivate x" (gameX + (gameWidth - indicatorWidth) // 2) " y" (gameY + 40))
-    } else {
-        voiceIndicator.Hide()
     }
-    KeyWait("g")
+    Critical("Off")
+    KeyWait(waitKey)
 }
-#HotIf
+
+LoadVoiceSettings(*) {
+    global settingsPath, targetKey, toggleKey
+    nextTarget := "F10"
+    nextToggle := "G"
+    try {
+        nextTarget := IniRead(settingsPath, "Voice", "TargetKey", "F10")
+        nextToggle := IniRead(settingsPath, "Voice", "ToggleKey", "G")
+    }
+    if !ValidVoiceKey(nextTarget) || !ValidVoiceKey(nextToggle) || GetKeyVK(nextTarget) = GetKeyVK(nextToggle) {
+        nextTarget := "F10"
+        nextToggle := "G"
+    }
+    if nextTarget = targetKey && nextToggle = toggleKey
+        return
+    Critical("On")
+    try {
+        ; Release the previous target before replacing bindings.
+        ReleaseVoice()
+        Critical("On")
+        HotIf(VoiceContext)
+        Hotkey("$*" nextToggle, ToggleVoice, "On")
+        if StrLower(nextToggle) != StrLower(toggleKey)
+            Hotkey("$*" toggleKey, "Off")
+        targetKey := nextTarget
+        toggleKey := nextToggle
+        A_IconTip := "Dota 2 voice: OFF (" toggleKey " toggles)"
+    } finally {
+        HotIf()
+        Critical("Off")
+    }
+}
+
+ValidVoiceKey(key) {
+    return RegExMatch(key, "i)^[a-z0-9]+$") && GetKeyVK(key)
+        && !RegExMatch(key, "i)^(.*Button|Wheel.*|.*Shift|.*Control|.*Ctrl|.*Alt|.*Win)$")
+}
 
 CheckGame() {
-    global gamePID, gameWindow, voiceOn
+    global gameWindow, voiceOn
     if !DotaIsRunning()
         ExitApp()
     if voiceOn && !WinActive(gameWindow)
@@ -52,17 +106,20 @@ CheckGame() {
 }
 
 ReleaseVoice(*) {
-    global voiceOn, voiceIndicator
+    global voiceOn, voiceIndicator, heldTarget, toggleKey
     voiceIndicator.Hide()
     if voiceOn {
-        SendEvent("{Blind}{F10 up}")
+        SendEvent("{Blind}{" heldTarget " up}")
         voiceOn := false
-        A_IconTip := "Dota 2 voice: OFF (G toggles)"
+        heldTarget := ""
+        A_IconTip := "Dota 2 voice: OFF (" toggleKey " toggles)"
     }
 }
 
-; Verify the process identity as well as its PID. A manually supplied PID
-; must never allow these helpers to attach to an unrelated application.
+VoiceError(*) {
+    ReleaseVoice()
+}
+
 DotaIsRunning() {
     global gamePID
     try {
