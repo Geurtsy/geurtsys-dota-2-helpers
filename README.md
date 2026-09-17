@@ -21,16 +21,31 @@ Press **G** once to talk, then press **G** again to stop. The helper holds your 
 - A lightweight watcher stays running and starts the helper the next time Dota 2 launches, including launches through Steam.
 - G only controls voice while Dota 2 is focused. Holding G does not toggle repeatedly.
 
-## Hold middle mouse for a speed boost
+## Configurable speed-boost key
 
-Hold the **middle mouse button** while Dota 2 is focused to boost Windows pointer speed toward **2x** its normal level. Release it to restore the speed captured when you pressed the button. Middle-click still reaches Dota normally, including camera dragging.
+Hold your selected **speed-boost key** (default: middle mouse) while Dota 2 is focused to boost Windows pointer speed toward **2x** its normal level. Release it to restore the speed captured when you pressed the button. Middle-click still reaches Dota normally, including camera dragging.
 
-- Switching away from Dota, closing the game, or normally exiting the helper restores your original speed. After Alt-Tab, release and press middle mouse again to re-enable the boost.
+- Switching away from Dota, closing the game, or normally exiting the helper restores your original speed. After Alt-Tab, release and press the boost key again to re-enable the boost.
 - This changes Windows pointer speed, **not hardware CPI/DPI**. Windows exposes a system-wide setting; the helper applies it only while Dota is focused and restores it within the next timer check when focus changes.
 - Windows speed steps are nonlinear: the helper selects the closest available nominal 2x gain, capped at Windows' maximum. For example, default speed 10 becomes 14, rather than 20. At higher baseline settings, 2x may be unavailable.
 - **Enhance pointer precision** adds acceleration, so an exact 2x result is not guaranteed. The helper leaves this preference unchanged.
 - Games using raw mouse input may ignore Windows pointer speed. Test its effect on your Dota setup.
 - The change is not saved to your Windows profile. A forced process termination can bypass cleanup; if that happens while boosted, restore pointer speed in Windows Settings or sign out and back in.
+
+## WASD camera controls
+
+While camera mode is active, **W / A / S / D** send **Up / Left / Down / Right**. The original letters are intercepted, so their normal Dota actions are not triggered by new presses. Arrow keys must be bound to camera movement in Dota.
+
+In Settings, choose an **Activation key** (default `MButton`) and a mode:
+
+- **Hold** (default): remap while the activation button is held.
+- **Toggle**: press once to enable, then again to disable. Alt-Tab turns toggle mode off.
+
+Turning the mode off, leaving Dota, changing the activation setting, or closing the helper releases generated arrow keys. A WASD key already consumed by the remapping stays suppressed until released, preventing its normal action from firing on repeat after mode-off. When inactive, new WASD presses behave normally. Active remapping also applies to Dota text chat; disable it to type normally.
+
+The activation button itself retains its normal action. You can use the same activation button for camera mode and speed boost, or choose different buttons. Both support single keyboard keys or mouse button names such as `MButton`, `XButton1`, and `XButton2`. Voice keys must be different from activation keys and WASD/arrows; camera activation cannot itself be WASD or an arrow key.
+
+The **speed boost remains a hold action**, even when camera mode uses Toggle. It changes Windows pointer speed, **not Dota's arrow-key camera pan rate**. Select its independent **Hold key** in the Mouse speed section. Changes apply without restarting Dota.
 
 ## Setup
  
@@ -38,7 +53,7 @@ Hold the **middle mouse button** while Dota 2 is focused to boost Windows pointe
 
 Double-click **`Dota2-Mouse-Settings.ahk`**, or right-click the watcher's or mouse helper's AutoHotkey tray icon and choose **Settings...**.
 
-Move the slider from **1x to 4x** and click **Save settings**. **Reset to 2x** selects the default; click Save to keep it. Saved changes apply on the next middle-mouse press without restarting Dota. Windows still rounds to its available speed steps and maximum.
+Move the slider from **1x to 4x** and click **Save settings**. **Reset to 2x** selects the default; click Save to keep it. Saved changes apply on the next boost-key press without restarting Dota. Windows still rounds to its available speed steps and maximum.
 
 Preferences are saved per Windows user in `%APPDATA%\GeurtsyDota2Helpers\settings.ini`. Missing or invalid settings fall back to 2x. This settings window can be opened without Dota; it only edits preferences and never enables mouse or keyboard helpers outside the game.
 
@@ -69,7 +84,7 @@ For manual use without automatic startup, double-click `Dota2-Voice-Watcher.ahk`
 
 ## Stop or uninstall
 
-Right-click the watcher's AutoHotkey tray icon and select **Exit**. If Dota 2 is running, also exit the voice and mouse helpers' tray icons to immediately release F10, remove the indicator, and restore pointer speed.
+Right-click the watcher's AutoHotkey tray icon and select **Exit**. If Dota 2 is running, also exit the voice, mouse and camera helpers' tray icons to immediately release F10, remove the indicator, and restore pointer speed.
 
 To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove **Dota 2 Voice Toggle.lnk**. You can then delete the extracted folder when both scripts have stopped.
 
@@ -81,7 +96,8 @@ To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove
 | `Setup.ps1` | Detects AutoHotkey v2, validates the scripts, and creates the startup shortcut. |
 | `Dota2-Voice-Watcher.ahk` | Watches for `dota2.exe` and launches the voice helper for each game session. |
 | `Dota2-Voice-Toggle.ahk` | Implements the G toggle, F10 hold, visible indicator, and cleanup. |
-| `Dota2-Mouse-Boost.ahk` | Temporarily boosts Windows pointer speed while middle mouse is held in Dota. |
+| `Dota2-Mouse-Boost.ahk` | Temporarily boosts Windows pointer speed while the selected boost key is held in Dota. |
+| `Dota2-Camera-Keys.ahk` | Intercepts WASD as arrows while the chosen camera mode is active. |
 | `Dota2-Mouse-Settings.ahk` | Settings window for the saved mouse multiplier and voice target/toggle keys. |
 
 ## Validation
@@ -89,4 +105,5 @@ To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove
 All AutoHotkey scripts include a `--validate` argument that loads and parses the script, then exits without enabling the helper. Run them with AutoHotkey v2 and this argument for syntax checking.
 
 Syntax validation is not an in-game microphone test. Check voice transmission and indicator visibility in your own Dota 2 setup.
+
 
