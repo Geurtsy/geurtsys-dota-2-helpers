@@ -10,6 +10,7 @@ Loop {
     gamePID := ProcessWait("dota2.exe")
     A_IconTip := "Dota 2 voice toggle - game detected"
     Run('"' A_AhkPath '" "' A_ScriptDir '\Dota2-Voice-Toggle.ahk" ' gamePID)
+    Run('"' A_AhkPath '" "' A_ScriptDir '\Dota2-Mouse-Boost.ahk" ' gamePID)
     ProcessWaitClose(gamePID)
     A_IconTip := "Dota 2 voice toggle - waiting for Dota 2"
     Sleep(500)
