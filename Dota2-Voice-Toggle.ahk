@@ -14,12 +14,15 @@ gamePID := A_Args.Length ? Integer(A_Args[1]) : ProcessExist("dota2.exe")
 if !DotaIsRunning()
     ExitApp()
 gameWindow := "ahk_pid " gamePID
-voiceIndicator := Gui("+AlwaysOnTop -Caption +ToolWindow +E0x20 +E0x08000000")
-voiceIndicator.BackColor := "153D2A"
-voiceIndicator.MarginX := 14
-voiceIndicator.MarginY := 8
-voiceIndicator.SetFont("s11 cFFFFFF", "Segoe UI")
-indicatorLabel := voiceIndicator.AddText(, "Voice chat ON  |  G to turn off")
+voiceIndicator := Gui("+AlwaysOnTop -Caption +Border +ToolWindow +E0x20 +E0x08000000", "Geurtsy Dota Voice Indicator")
+voiceIndicator.BackColor := "17212B"
+voiceIndicator.AddProgress("x0 y0 w4 h46 c55D6A0 Background55D6A0", 100)
+voiceIndicator.SetFont("s10 Bold c75E6B5", "Segoe UI")
+voiceIndicator.AddText("x16 y6 w290 h18", "VOICE CHAT  ON")
+voiceIndicator.SetFont("s9 Norm cE2E8F0", "Segoe UI")
+indicatorLabel := voiceIndicator.AddText("x16 y25 w290 h17", "G to turn off")
+voiceIndicator.Show("NoActivate Hide w320 h46")
+WinSetTransparent(235, voiceIndicator.Hwnd)
 A_IconTip := "Dota 2 voice: OFF (G toggles)"
 OnExit(ReleaseVoice)
 OnError(VoiceError)
@@ -50,11 +53,8 @@ ToggleVoice(*) {
         voiceOn := true
         SendEvent("{Blind}{" heldTarget " down}")
         A_IconTip := "Dota 2 voice: ON (" toggleKey " toggles)"
-        indicatorLabel.Text := "Voice chat ON  |  " toggleKey " to turn off"
-        WinGetPos(&gameX, &gameY, &gameWidth, , gameWindow)
-        voiceIndicator.Show("NoActivate AutoSize Hide")
-        voiceIndicator.GetPos(, , &indicatorWidth)
-        voiceIndicator.Show("NoActivate x" (gameX + (gameWidth - indicatorWidth) // 2) " y" (gameY + 40))
+        indicatorLabel.Text := toggleKey " to turn off"
+        PositionVoiceIndicator()
     }
     Critical("Off")
     KeyWait(waitKey)
@@ -103,6 +103,8 @@ CheckGame() {
         ExitApp()
     if voiceOn && !WinActive(gameWindow)
         ReleaseVoice()
+    else if voiceOn
+        PositionVoiceIndicator()
 }
 
 ReleaseVoice(*) {
@@ -127,4 +129,14 @@ DotaIsRunning() {
     } catch {
         return false
     }
+}
+
+PositionVoiceIndicator() {
+    global voiceIndicator, gameWindow
+    if !WinActive(gameWindow)
+        return
+    WinGetPos(&gameX, &gameY, &gameWidth, , gameWindow)
+    voiceIndicator.GetPos(, , &indicatorWidth)
+    ; The first fixed slot is reserved for voice. Camera uses slot two.
+    voiceIndicator.Show("NoActivate x" (gameX + (gameWidth - indicatorWidth) // 2) " y" (gameY + 40))
 }
