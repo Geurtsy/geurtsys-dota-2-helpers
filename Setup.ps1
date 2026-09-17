@@ -7,7 +7,8 @@ try {
     $togglePath = Join-Path $PSScriptRoot 'Dota2-Voice-Toggle.ahk'
     $mousePath = Join-Path $PSScriptRoot 'Dota2-Mouse-Boost.ahk'
     $settingsPath = Join-Path $PSScriptRoot 'Dota2-Mouse-Settings.ahk'
-    foreach ($path in @($watcherPath, $togglePath, $mousePath, $settingsPath)) {
+    $cameraPath = Join-Path $PSScriptRoot 'Dota2-Camera-Keys.ahk'
+    foreach ($path in @($watcherPath, $togglePath, $mousePath, $settingsPath, $cameraPath)) {
         if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
             throw 'Extract the entire ZIP first. Keep Setup.bat, Setup.ps1 and all .ahk files together.'
         }
@@ -42,7 +43,7 @@ try {
     }
 
     # Parse all scripts before changing the startup shortcut.
-    foreach ($path in @($watcherPath, $togglePath, $mousePath, $settingsPath)) {
+    foreach ($path in @($watcherPath, $togglePath, $mousePath, $settingsPath, $cameraPath)) {
         $check = Start-Process -FilePath $ahkExe -ArgumentList @('/ErrorStdOut', ('"' + $path + '"'), '--validate') -WindowStyle Hidden -Wait -PassThru
         if ($check.ExitCode -ne 0) { throw "AutoHotkey could not validate $path (exit $($check.ExitCode))." }
     }
@@ -73,9 +74,11 @@ try {
     }
     Write-Host 'Setup complete! The watcher is running and will start each time you sign in.'
     Write-Host 'Keep this folder in its current location. Set Dota 2 push-to-talk to F10; press G to toggle voice.'
-    Write-Host 'Hold middle mouse in Dota 2 for a temporary pointer-speed boost; release to restore.'
+    Write-Host 'Open Settings to choose camera Hold/Toggle mode and independent camera and speed-boost activation keys.'
     Write-Host 'To disable startup, remove Dota 2 Voice Toggle.lnk from the shell:startup folder.'
 } catch {
     Write-Host ('Setup failed: ' + $_.Exception.Message) -ForegroundColor Red
     exit 1
 }
+
+
