@@ -2,6 +2,12 @@
 
 Small AutoHotkey v2 helpers for Dota 2 on Windows.
 
+## Only active with Dota 2
+
+The watcher starts the helpers only after `dota2.exe` starts. Each helper verifies that its target is Dota 2, accepts hotkeys only while Dota is focused, and exits automatically when the game closes. Closing Dota releases voice chat, removes its indicator, and restores any boosted mouse speed. Alt-Tab also turns off voice and restores mouse speed.
+
+When Dota is not running, only the idle watcher remains. It registers no keyboard or mouse hotkeys and changes no input settings; it waits for the next game launch. Starting a helper directly while Dota is closed simply exits.
+
 ## Toggle voice chat
 
 Press **G** once to talk, then press **G** again to stop. The helper holds your existing **F10** push-to-talk binding while voice is on.
