@@ -1,0 +1,4 @@
+*.lnk
+*.log
+.DS_Store
+Thumbs.db
