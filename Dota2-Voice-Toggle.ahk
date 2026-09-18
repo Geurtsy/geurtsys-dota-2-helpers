@@ -26,8 +26,9 @@ WinSetTransparent(235, voiceIndicator.Hwnd)
 A_IconTip := "Dota 2 voice: OFF (G toggles)"
 OnExit(ReleaseVoice)
 OnError(VoiceError)
+; Tilde passes the physical toggle key through to Dota, including text chat.
 HotIf(VoiceContext)
-Hotkey("$*" toggleKey, ToggleVoice, "On")
+Hotkey("~$*" toggleKey, ToggleVoice, "On")
 HotIf()
 LoadVoiceSettings()
 SetTimer(CheckGame, 100)
@@ -80,9 +81,9 @@ LoadVoiceSettings(*) {
         ReleaseVoice()
         Critical("On")
         HotIf(VoiceContext)
-        Hotkey("$*" nextToggle, ToggleVoice, "On")
+        Hotkey("~$*" nextToggle, ToggleVoice, "On")
         if StrLower(nextToggle) != StrLower(toggleKey)
-            Hotkey("$*" toggleKey, "Off")
+            Hotkey("~$*" toggleKey, "Off")
         targetKey := nextTarget
         toggleKey := nextToggle
         A_IconTip := "Dota 2 voice: OFF (" toggleKey " toggles)"
@@ -140,3 +141,4 @@ PositionVoiceIndicator() {
     ; The first fixed slot is reserved for voice. Camera uses slot two.
     voiceIndicator.Show("NoActivate x" (gameX + (gameWidth - indicatorWidth) // 2) " y" (gameY + 40))
 }
+
