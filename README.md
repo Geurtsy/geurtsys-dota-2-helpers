@@ -10,7 +10,7 @@ When Dota is not running, only the idle watcher remains. It registers no keyboar
 
 ## Toggle voice chat
 
-The defaults below are configurable in the settings window. Set **Target key** to match your Dota push-to-talk binding and **Toggle key** to the key you want to press to turn voice on/off. Click a key box and press a single keyboard key without modifiers, then click **Save settings**. The keys must differ. Changes apply within about half a second without restarting Dota and turn any active voice hold off first. The indicator uses your selected toggle key. Your selected toggle is reserved throughout Dota, including text chat. The window does not edit Dota's own bindings.
+The defaults below are configurable in the settings window. Set **Target key** to match your Dota push-to-talk binding and **Toggle key** to the key you want to press to turn voice on/off. Click a key box and press a single keyboard key without modifiers, then click **Save settings**. The keys must differ. Changes apply within about half a second without restarting Dota and turn any active voice hold off first. The indicator uses your selected toggle key. Your selected toggle key passes through to Dota, retaining its normal binding and text input while also toggling voice. The window does not edit Dota's own bindings.
 
 
 Press **G** once to talk, then press **G** again to stop. The helper holds your existing **F10** push-to-talk binding while voice is on.
@@ -82,7 +82,7 @@ For manual use without automatic startup, double-click `Dota2-Voice-Watcher.ahk`
 
 ## Notes
 
-- **G is reserved for the toggle throughout Dota 2, including its text-chat box.** It will not type the letter G there while the helper is active.
+- **G (or your configured voice toggle key) keeps its normal function.** It also types normally in Dota text chat, but pressing it there still toggles voice. Other keys are not intercepted by the voice helper; WASD interception belongs only to active camera mode.
 - If exclusive fullscreen hides the indicator, use Dota 2's borderless window display mode.
 - The indicator shows the helper's toggle state; it does not verify microphone audio or Dota 2's connection.
 - After switching back from another app, press G again if you want voice on.
@@ -111,6 +111,7 @@ To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove
 All AutoHotkey scripts include a `--validate` argument that loads and parses the script, then exits without enabling the helper. Run them with AutoHotkey v2 and this argument for syntax checking.
 
 Syntax validation is not an in-game microphone test. Check voice transmission and indicator visibility in your own Dota 2 setup.
+
 
 
 
