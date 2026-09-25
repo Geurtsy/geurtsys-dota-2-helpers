@@ -8,6 +8,7 @@ gamePID := A_Args.Length ? Integer(A_Args[1]) : ProcessExist("dota2.exe")
 if !DotaIsRunning()
     ExitApp()
 gameWindow := "ahk_pid " gamePID
+featureEnabled := true
 cameraKey := "MButton"
 cameraMode := "Hold"
 toggled := false
@@ -58,15 +59,17 @@ GameFocused(*) {
     return DotaIsRunning() && WinActive(gameWindow)
 }
 CameraActive() {
-    global cameraMode, cameraKey, toggled
-    return GameFocused() && (cameraMode = "Toggle" ? toggled : GetKeyState(cameraKey, "P"))
+    global cameraMode, cameraKey, toggled, featureEnabled
+    return featureEnabled && GameFocused() && (cameraMode = "Toggle" ? toggled : GetKeyState(cameraKey, "P"))
 }
 CaptureKey(key) {
-    global captured
-    return GameFocused() && (CameraActive() || captured[key])
+    global captured, featureEnabled
+    return featureEnabled && GameFocused() && (CameraActive() || captured[key])
 }
 ActivateCamera(*) {
-    global cameraMode, cameraKey, toggled
+    global cameraMode, cameraKey, toggled, featureEnabled
+    if !featureEnabled
+        return
     waitKey := cameraKey
     if cameraMode = "Toggle" && GameFocused() {
         toggled := !toggled
@@ -118,7 +121,14 @@ CheckCamera() {
     }
 }
 LoadCameraSettings() {
-    global cameraKey, cameraMode, toggled
+    global cameraKey, cameraMode, toggled, featureEnabled, captured
+    featureEnabled := FeatureIsEnabled("Camera")
+    if !featureEnabled {
+        toggled := false
+        CameraExit()
+        for key in captured
+            captured[key] := false
+    }
     nextKey := "MButton"
     nextMode := "Hold"
     path := A_AppData "\GeurtsyDota2Helpers\settings.ini"
@@ -176,4 +186,10 @@ CameraExit(*) {
     global cameraIndicator
     cameraIndicator.Hide()
     ReleaseArrows()
+}
+
+FeatureIsEnabled(name) {
+    try return IniRead(A_AppData "\GeurtsyDota2Helpers\settings.ini", "Features", name, "1") != "0"
+    catch
+        return true
 }
