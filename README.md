@@ -2,6 +2,12 @@
 
 Small AutoHotkey v2 helpers for Dota 2 on Windows.
 
+## Feature on/off buttons
+
+Each settings section has an **ON - disable / OFF - enable** button for Mouse speed, Voice chat, or WASD camera controls. Clicking it saves that feature's state immediately; you do not need to click Save settings. Changes reach running helpers within half a second and persist after restarting Windows.
+
+Disabling voice releases push-to-talk and hides its indicator. Disabling mouse boost restores normal pointer speed. Disabling WASD mode releases generated arrows, stops interception, resets toggle mode, and hides its indicator. Your key bindings and multiplier remain saved for later. Other unfinished edits still need **Save settings**. All features default to enabled for existing installations.
+
 ## Only active with Dota 2
 
 The watcher starts the helpers only after `dota2.exe` starts. Each helper verifies that its target is Dota 2, accepts hotkeys only while Dota is focused, and exits automatically when the game closes. Closing Dota releases voice chat, removes its indicator, and restores any boosted mouse speed. Alt-Tab also turns off voice and restores mouse speed.
@@ -111,6 +117,7 @@ To prevent automatic startup, press **Win+R**, enter `shell:startup`, and remove
 All AutoHotkey scripts include a `--validate` argument that loads and parses the script, then exits without enabling the helper. Run them with AutoHotkey v2 and this argument for syntax checking.
 
 Syntax validation is not an in-game microphone test. Check voice transmission and indicator visibility in your own Dota 2 setup.
+
 
 
 
