@@ -98,6 +98,15 @@ settingsWindow.SetFont("s10 Bold c202938", "Segoe UI")
 saveButton := settingsWindow.AddButton("x704 y603 w156 h34 Default", "Save settings")
 settingsWindow.SetFont("s9 Norm c586174", "Segoe UI")
 statusLabel := settingsWindow.AddText("x24 y603 w652 h52", "Voice changes apply automatically; mouse changes apply on the next press.")
+featureButtons := Map()
+featureStates := Map()
+settingsWindow.SetFont("s9 Bold c202938", "Segoe UI")
+for feature, position in Map("Mouse", "x400 y84 w102 h26", "Voice", "x400 y338 w102 h26", "Camera", "x748 y84 w102 h26") {
+    enabled := IniRead(settingsPath, "Features", feature, "1") != "0"
+    featureStates[feature] := enabled
+    featureButtons[feature] := settingsWindow.AddButton(position, enabled ? "ON - disable" : "OFF - enable")
+    featureButtons[feature].OnEvent("Click", ToggleFeature.Bind(feature))
+}
 multiplierSlider.OnEvent("Change", UpdateLabel)
 saveButton.OnEvent("Click", SaveSettings)
 resetButton.OnEvent("Click", ResetSelection)
@@ -119,7 +128,20 @@ if A_Args.Length && A_Args[1] = "--self-test" {
     targetControl.Value := "F9"
     toggleControl.Value := "v"
     try {
+        for feature in ["Mouse", "Voice", "Camera"] {
+            featureStates[feature] := true
+            ToggleFeature(feature)
+            if IniRead(settingsPath, "Features", feature) != "0"
+                throw Error("Disable state was not saved")
+        }
         SaveSettings()
+        for feature in ["Mouse", "Voice", "Camera"] {
+            if IniRead(settingsPath, "Features", feature) != "0"
+                throw Error("Save settings overwrote feature state")
+            ToggleFeature(feature)
+            if IniRead(settingsPath, "Features", feature) != "1"
+                throw Error("Enable state was not saved")
+        }
         if IniRead(settingsPath, "Mouse", "Multiplier") != "3.5"
             throw Error("Settings persistence test failed")
         if IniRead(settingsPath, "Voice", "TargetKey") != "F9" || StrLower(IniRead(settingsPath, "Voice", "ToggleKey")) != "v"
@@ -195,4 +217,20 @@ ValidVoiceKey(key) {
 
 ValidActivationKey(key) {
     return RegExMatch(key, "i)^[a-z0-9]+$") && GetKeyVK(key) && !RegExMatch(key, "i)^Wheel")
+}
+
+ToggleFeature(feature, *) {
+    global featureStates, featureButtons, settingsPath, statusLabel
+    nextState := !featureStates[feature]
+    try {
+        DirCreate(A_AppData "\GeurtsyDota2Helpers")
+        ; Independent of Save settings: switching off always works even while
+        ; another field contains an unfinished edit. Persist immediately.
+        IniWrite(nextState ? "1" : "0", settingsPath, "Features", feature)
+        featureStates[feature] := nextState
+        featureButtons[feature].Text := nextState ? "ON - disable" : "OFF - enable"
+        statusLabel.Text := feature " feature " (nextState ? "enabled" : "disabled") ". Saved automatically; applies within half a second. Other edits still need Save settings."
+    } catch as err {
+        MsgBox("Could not save feature state: " err.Message, "Settings", "Icon!")
+    }
 }
