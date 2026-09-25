@@ -5,6 +5,7 @@
 if A_Args.Length && A_Args[1] = "--validate"
     ExitApp()
 
+featureEnabled := true
 voiceOn := false
 heldTarget := ""
 targetKey := "F10"
@@ -35,8 +36,8 @@ SetTimer(CheckGame, 100)
 SetTimer(LoadVoiceSettings, 500)
 
 VoiceContext(*) {
-    global gameWindow
-    return DotaIsRunning() && WinActive(gameWindow)
+    global gameWindow, featureEnabled
+    return featureEnabled && DotaIsRunning() && WinActive(gameWindow)
 }
 
 ToggleVoice(*) {
@@ -62,7 +63,10 @@ ToggleVoice(*) {
 }
 
 LoadVoiceSettings(*) {
-    global settingsPath, targetKey, toggleKey
+    global settingsPath, targetKey, toggleKey, featureEnabled
+    featureEnabled := FeatureIsEnabled("Voice")
+    if !featureEnabled
+        ReleaseVoice()
     nextTarget := "F10"
     nextToggle := "G"
     try {
@@ -142,3 +146,9 @@ PositionVoiceIndicator() {
     voiceIndicator.Show("NoActivate x" (gameX + (gameWidth - indicatorWidth) // 2) " y" (gameY + 40))
 }
 
+
+FeatureIsEnabled(name) {
+    try return IniRead(A_AppData "\GeurtsyDota2Helpers\settings.ini", "Features", name, "1") != "0"
+    catch
+        return true
+}
