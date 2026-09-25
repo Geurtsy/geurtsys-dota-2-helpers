@@ -5,6 +5,7 @@
 if A_Args.Length && A_Args[1] = "--validate"
     ExitApp()
 
+featureEnabled := true
 boostKey := 'MButton'
 previousDown := false
 InstallKeybdHook()
@@ -25,14 +26,14 @@ SetTimer(CheckGame, 20)
 
 ; Observe the configurable physical key without swallowing its normal input.
 CheckGame() {
-    global gamePID, gameWindow, boosted, boostKey, previousDown
+    global gamePID, gameWindow, boosted, boostKey, previousDown, featureEnabled
     if !DotaIsRunning()
         ExitApp()
     down := GetKeyState(boostKey, "P")
     focused := WinActive(gameWindow)
-    if boosted && (!focused || !down)
+    if boosted && (!featureEnabled || !focused || !down)
         RestoreSpeed()
-    if down && !previousDown && focused {
+    if featureEnabled && down && !previousDown && focused {
         ApplyBoost()
     }
     previousDown := down
@@ -52,7 +53,13 @@ ApplyBoost() {
 }
 
 LoadBoostKey() {
-    global boostKey, previousDown
+    global boostKey, previousDown, featureEnabled
+    nextEnabled := FeatureIsEnabled("Mouse")
+    if nextEnabled != featureEnabled {
+        featureEnabled := nextEnabled
+        RestoreSpeed()
+        previousDown := GetKeyState(boostKey, "P")
+    }
     nextKey := "MButton"
     try nextKey := IniRead(A_AppData "\GeurtsyDota2Helpers\settings.ini", "Mouse", "BoostKey", "MButton")
     if !RegExMatch(nextKey, "i)^[a-z0-9]+$") || !GetKeyVK(nextKey) || RegExMatch(nextKey, "i)^Wheel")
@@ -134,3 +141,9 @@ DotaIsRunning() {
 }
 
 
+
+FeatureIsEnabled(name) {
+    try return IniRead(A_AppData "\GeurtsyDota2Helpers\settings.ini", "Features", name, "1") != "0"
+    catch
+        return true
+}
